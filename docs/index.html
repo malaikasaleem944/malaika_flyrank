@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Predicting Content Performance Across Unseen Clients</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      line-height: 1.7;
+      color: #222;
+      background: #f5f6f8;
+    }
+
+    .container {
+      max-width: 950px;
+      margin: 0 auto;
+      background: white;
+      padding: 50px 60px;
+    }
+
+    h1 {
+      font-size: 42px;
+      line-height: 1.2;
+      margin-bottom: 15px;
+    }
+
+    h2 {
+      margin-top: 50px;
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 8px;
+    }
+
+    h3 {
+      margin-top: 30px;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 18px;
+    }
+
+    .abstract {
+      background: #f1f3f5;
+      padding: 25px;
+      border-left: 5px solid #333;
+      margin: 30px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 25px 0;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background: #f1f3f5;
+    }
+
+    .metric {
+      display: inline-block;
+      min-width: 150px;
+      padding: 18px;
+      margin: 8px;
+      background: #f1f3f5;
+      text-align: center;
+      border-radius: 8px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 28px;
+    }
+
+    .note {
+      background: #fff8e1;
+      padding: 18px;
+      border-left: 4px solid #d99a00;
+      margin: 25px 0;
+    }
+
+    footer {
+      margin-top: 60px;
+      padding-top: 25px;
+      border-top: 1px solid #ddd;
+      color: #666;
+    }
+
+    a {
+      color: #2457a6;
+    }
+
+    @media (max-width: 700px) {
+      .container {
+        padding: 25px;
+      }
+
+      h1 {
+        font-size: 32px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <header>
+    <h1>Predicting Content Performance Across Unseen Clients</h1>
+    <p class="subtitle">
+      A public-safe machine learning study using aggregated content-performance signals
+    </p>
+  </header>
+
+
+  <!-- 1. ABSTRACT -->
+  <section>
+    <h2>1. Abstract</h2>
+
+    <div class="abstract">
+      <p>
+        This study asks whether aggregated content-performance features can provide
+        useful predictive signal for clicks over a 90-day window when evaluated on
+        previously unseen clients. A Random Forest regression model was trained using
+        public-safe aggregated features and evaluated using a client-grouped validation
+        design against a simple mean-prediction baseline. On the grouped test split,
+        the Random Forest achieved an MAE of 1.134, RMSE of 23.509, and R² of 0.867,
+        compared with baseline MAE of 21.592, RMSE of 64.622, and R² of -0.007.
+        These measured results indicate useful predictive signal within the available
+        evaluation setup, while remaining subject to temporal leakage risk and other
+        dataset limitations. The resulting signals were also converted into a ranked
+        human-review action playbook for decision support rather than automatic
+        content changes.
+      </p>
+    </div>
+  </section>
+
+
+  <!-- 2. INTRODUCTION -->
+  <section>
+    <h2>2. Introduction / Problem Statement</h2>
+
+    <p>
+      Content teams often need to decide which pages deserve attention first.
+      A large content inventory makes manual prioritization difficult, particularly
+      when performance varies across clients and pages.
+    </p>
+
+    <p>
+      This project investigates whether aggregated content-performance metrics can
+      provide a useful predictive signal for <code>clicks_90d</code>. The practical
+      decision supported by the analysis is whether model-based signals can help
+      prioritize content for human review.
+    </p>
+
+    <p>
+      The project deliberately frames the result as decision-support evidence.
+      Predictive association is not treated as proof of causation or guaranteed
+      business improvement.
+    </p>
+  </section>
+
+
+  <!-- 3. DATA -->
+  <section>
+    <h2>3. Data</h2>
+
+    <p>
+      The analysis used the FlyRank ML Internship dataset and the pseudonymized
+      warehouse release
+      <code>flyrank_pseudonymized_warehouse_release_v20260703</code>,
+      with a snapshot export date of 2026-07-03.
+    </p>
+
+    <p>
+      The broader release contains four tables:
+      <code>dim_clients</code>,
+      <code>dim_content</code>,
+      <code>fact_content_daily_performance</code>,
+      and
+      <code>fact_content_query_90d</code>.
+      The daily performance table contains approximately 79 million rows in the
+      release.
+    </p>
+
+    <p>
+      The modeling work used the provided anonymized starter dataset containing
+      30,000 rows and 44 columns. The analysis used aggregated trailing-90-day
+      performance measures and content attributes.
+    </p>
+
+    <p>
+      Client names, URLs, page-level identifiers, and private search queries were
+      excluded from the public-facing analysis. Label-derived or leakage-prone
+      fields were also excluded from the model feature set.
+    </p>
+  </section>
+
+
+  <!-- 4. METHODOLOGY -->
+  <section>
+    <h2>4. Methodology</h2>
+
+    <h3>Features</h3>
+
+    <p>The final model used:</p>
+
+    <ul>
+      <li><code>impressions_90d</code></li>
+      <li><code>sessions_90d</code></li>
+      <li><code>content_age_days</code></li>
+      <li><code>avg_position</code></li>
+      <li><code>ctr</code></li>
+      <li><code>trend_pct</code></li>
+    </ul>
+
+    <h3>Label</h3>
+
+    <p>
+      The prediction target was <code>clicks_90d</code>.
+    </p>
+
+    <h3>Model</h3>
+
+    <p>
+      A Random Forest regression model was used as the primary model.
+      The model was compared with a simple mean-prediction baseline that predicts
+      the training-set mean for every test observation.
+    </p>
+
+    <h3>Validation Design</h3>
+
+    <p>
+      The final evaluation used a client-grouped split. Clients in the test set
+      were not included in the training set, making the evaluation more demanding
+      than a random row-level split and more relevant to cross-client
+      generalization.
+    </p>
+
+    <h3>Metrics</h3>
+
+    <p>
+      Performance was measured using Mean Absolute Error (MAE), Root Mean Squared
+      Error (RMSE), and R-squared (R²).
+    </p>
+
+    <h3>Leakage Checks</h3>
+
+    <p>
+      A feature leakage audit identified fields derived from labels or closely
+      related to the target and excluded them from the model. However, the exact
+      temporal alignment of all rolling aggregate windows cannot be reconstructed
+      from the starter dataset, so temporal leakage cannot be fully ruled out.
+    </p>
+  </section>
+
+
+  <!-- 5. RESULTS -->
+  <section>
+    <h2>5. Results</h2>
+
+    <p>
+      Both models were evaluated on the same client-grouped test split.
+      Lower MAE and RMSE are better, while higher R² is better.
+    </p>
+
+    <div>
+      <div class="metric">
+        <strong>1.134</strong>
+        Model MAE
+      </div>
+
+      <div class="metric">
+        <strong>23.509</strong>
+        Model RMSE
+      </div>
+
+      <div class="metric">
+        <strong>0.867</strong>
+        Model R²
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>MAE</th>
+          <th>RMSE</th>
+          <th>R²</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td>Mean-Prediction Baseline</td>
+          <td>21.592</td>
+          <td>64.622</td>
+          <td>-0.007</td>
+        </tr>
+
+        <tr>
+          <td>Random Forest Regressor</td>
+          <td>1.134</td>
+          <td>23.509</td>
+          <td>0.867</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Interpretation</h3>
+
+    <p>
+      On this grouped validation split, the Random Forest produced substantially
+      lower MAE and RMSE than the mean-prediction baseline and a substantially
+      higher R². This indicates that the selected aggregated features contained
+      useful predictive signal within this evaluation setup.
+    </p>
+
+    <div class="note">
+      These are measured results from the available dataset and validation design.
+      They should not be interpreted as proof of causal impact, guaranteed business
+      improvement, or production-ready performance.
+    </div>
+  </section>
+
+
+  <!-- 6. LIMITATIONS -->
+  <section>
+    <h2>6. Limitations &amp; Honest Framing</h2>
+
+    <h3>Temporal leakage risk</h3>
+    <p>
+      Rolling aggregate features make it difficult to reconstruct the exact
+      temporal relationship between feature windows and the target window.
+      Therefore, complete elimination of temporal leakage cannot be claimed.
+    </p>
+
+    <h3>Generalization</h3>
+    <p>
+      Client-grouped validation tests performance on clients not seen during
+      training, but the result still comes from the available anonymized dataset.
+      It does not establish performance on every future production environment.
+    </p>
+
+    <h3>No causal claim</h3>
+    <p>
+      Predictive relationships do not demonstrate that changing a feature or
+      applying a recommendation will cause clicks to increase.
+    </p>
+
+    <h3>Aggregated data</h3>
+    <p>
+      Public-safe aggregation protects confidentiality but limits detailed
+      page-level investigation.
+    </p>
+
+    <h3>Human review</h3>
+    <p>
+      Recommendations are prioritization guidance. A human should review the
+      evidence before making content changes.
+    </p>
+  </section>
+
+
+  <!-- 7. RECOMMENDATIONS -->
+  <section>
+    <h2>7. Ranked Recommendations</h2>
+
+    <p>
+      The action playbook converts observed performance signals into a ranked
+      review queue. The final actionable queue contained 12,517 items.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Action</th>
+          <th>Queue Size</th>
+          <th>Purpose</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td><strong>SNIPPET_TITLE_REVIEW</strong></td>
+          <td>5,509</td>
+          <td>Review titles and search-result snippets.</td>
+        </tr>
+
+        <tr>
+          <td>2</td>
+          <td><strong>FRESHNESS_CHECK</strong></td>
+          <td>2,931</td>
+          <td>Review content freshness and possible updates.</td>
+        </tr>
+
+        <tr>
+          <td>3</td>
+          <td><strong>FULL_CONTENT_AUDIT</strong></td>
+          <td>2,066</td>
+          <td>Perform broader content review when multiple signals are present.</td>
+        </tr>
+
+        <tr>
+          <td>4</td>
+          <td><strong>REFRESH_REVIEW</strong></td>
+          <td>2,011</td>
+          <td>Review older or declining content for possible refresh.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Recommended Workflow</h3>
+
+    <ol>
+      <li>Start with the highest-priority items.</li>
+      <li>Review the supporting signals and reason codes.</li>
+      <li>Apply human judgment before making changes.</li>
+      <li>Record decisions and outcomes for future monitoring.</li>
+      <li>Re-evaluate the ranking approach when new validation data becomes available.</li>
+    </ol>
+  </section>
+
+
+  <!-- 8. REPRODUCIBILITY -->
+  <section>
+    <h2>8. Reproducibility</h2>
+
+    <p>
+      The project repository contains the analysis notebooks, supporting scripts,
+      outputs, documentation, and public-safe project materials.
+    </p>
+
+    <ul>
+      <li><code>work/notebooks/w04_baseline_score.ipynb</code></li>
+      <li><code>work/notebooks/w05_model.ipynb</code></li>
+      <li><code>work/notebooks/w06_validation_audit.ipynb</code></li>
+      <li><code>work/notebooks/w07_action_playbook.ipynb</code></li>
+      <li><code>work/notebooks/capstone.ipynb</code></li>
+    </ul>
+
+    <p>
+      The reported model-versus-baseline results come from the documented
+      client-grouped validation workflow. The notebooks provide the primary
+      inspection and reproducibility trail for the analysis.
+    </p>
+  </section>
+
+
+  <!-- 9. ACKNOWLEDGMENTS -->
+  <section>
+    <h2>9. Acknowledgments &amp; Data Credit</h2>
+
+    <p>
+      Built on the FlyRank ML Internship dataset.
+    </p>
+
+    <p>
+      Data source:
+      <a href="https://flyrank.ai" target="_blank" rel="noopener noreferrer">
+        FlyRank
+      </a>
+    </p>
+
+    <p>
+      This research artifact uses anonymized and aggregated data for educational
+      and research purposes. No client names, private queries, or identifying
+      production information are included in this public-facing paper.
+    </p>
+  </section>
+
+
+  <footer>
+    <p>
+      Research artifact — FlyRank ML Internship project.
+    </p>
+    <p>
+      Findings are measured and directional and should be interpreted within the
+      documented validation design and limitations.
+    </p>
+  </footer>
+
+</div>
+
+</body>
+</html>
