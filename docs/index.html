@@ -3,8 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Predicting Content Performance Across Unseen Clients</title>
-  <style>
+  <title>Predicting Content Performance Across Unseen Clients
+ .chart {
+  margin: 30px 0;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: 180px 1fr 80px;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0;
+}
+
+.bar-track {
+  background: #e5e7eb;
+  height: 24px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bar {
+  height: 24px;
+  background: #555;
+}
+
+@media (max-width: 700px) {
+  .bar-row {
+    grid-template-columns: 120px 1fr 65px;
+  }
+}</title>
+ <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -314,7 +347,65 @@
           <td>0.867</td>
         </tr>
       </tbody>
-    </table>
+    </table><h3>Model vs Baseline — MAE</h3>
+
+<div class="chart">
+  <div class="bar-row">
+    <span>Baseline</span>
+    <div class="bar-track">
+      <div class="bar" style="width: 100%;"></div>
+    </div>
+    <strong>21.592</strong>
+  </div>
+
+  <div class="bar-row">
+    <span>Random Forest</span>
+    <div class="bar-track">
+      <div class="bar" style="width: 5.3%;"></div>
+    </div>
+    <strong>1.134</strong>
+  </div>
+</div>
+
+<h3>Model vs Baseline — RMSE</h3>
+
+<div class="chart">
+  <div class="bar-row">
+    <span>Baseline</span>
+    <div class="bar-track">
+      <div class="bar" style="width: 100%;"></div>
+    </div>
+    <strong>64.622</strong>
+  </div>
+
+  <div class="bar-row">
+    <span>Random Forest</span>
+    <div class="bar-track">
+      <div class="bar" style="width: 36.4%;"></div>
+    </div>
+    <strong>23.509</strong>
+  </div>
+</div>
+
+<h3>R² Comparison</h3>
+
+<div class="chart">
+  <div class="bar-row">
+    <span>Baseline</span>
+    <div class="bar-track">
+      <div class="bar" style="width: 1%;"></div>
+    </div>
+    <strong>-0.007</strong>
+  </div>
+
+  <div class="bar-row">
+    <span>Random Forest</span>
+    <div class="bar-track">
+      <div class="bar" style="width: 86.7%;"></div>
+    </div>
+    <strong>0.867</strong>
+  </div>
+</div>
 
     <h3>Interpretation</h3>
 
@@ -443,12 +534,42 @@
     </p>
 
     <ul>
-      <li><code>work/notebooks/w04_baseline_score.ipynb</code></li>
-      <li><code>work/notebooks/w05_model.ipynb</code></li>
-      <li><code>work/notebooks/w06_validation_audit.ipynb</code></li>
-      <li><code>work/notebooks/w07_action_playbook.ipynb</code></li>
-      <li><code>work/notebooks/capstone.ipynb</code></li>
-    </ul>
+  <li>
+    <a href="https://github.com/malaikasaleem944/malaika_flyrank/blob/main/work/notebooks/w04_baseline_score.ipynb" target="_blank" rel="noopener noreferrer">
+      W04 — Baseline Score
+    </a>
+  </li>
+
+  <li>
+    <a href="https://github.com/malaikasaleem944/malaika_flyrank/blob/main/work/notebooks/w05_model.ipynb" target="_blank" rel="noopener noreferrer">
+      W05 — Model
+    </a>
+  </li>
+
+  <li>
+    <a href="https://github.com/malaikasaleem944/malaika_flyrank/blob/main/work/notebooks/w06_validation_audit.ipynb" target="_blank" rel="noopener noreferrer">
+      W06 — Validation Audit
+    </a>
+  </li>
+
+  <li>
+    <a href="https://github.com/malaikasaleem944/malaika_flyrank/blob/main/work/notebooks/w07_action_playbook.ipynb" target="_blank" rel="noopener noreferrer">
+      W07 — Action Playbook
+    </a>
+  </li>
+
+  <li>
+    <a href="https://github.com/malaikasaleem944/malaika_flyrank/blob/main/work/notebooks/capstone.ipynb" target="_blank" rel="noopener noreferrer">
+      Capstone
+    </a>
+  </li>
+</ul>
+
+<p>
+  <a href="https://github.com/malaikasaleem944/malaika_flyrank" target="_blank" rel="noopener noreferrer">
+    View the complete project repository on GitHub
+  </a>
+</p>
 
     <p>
       The reported model-versus-baseline results come from the documented
